@@ -5,8 +5,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
     BOT_TOKEN: str
-    ADMIN_IDS: list[int]
-    ADMIN_CHAT_ID: int
+    ADMIN_GROUP_ID: int  # Telegram group chat id for admin notifications and review
     CHANNEL_ID: int
 
     # Публичная ссылка на канал (для кнопки и NOT_SUBSCRIBED)

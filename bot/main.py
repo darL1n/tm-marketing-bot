@@ -2,6 +2,7 @@ import asyncio
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.bot import DefaultBotProperties
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.storage.redis import RedisStorage
 from loguru import logger
 
@@ -11,12 +12,18 @@ from bot.handlers.user import router as user_router
 from bot.middlewares.admin_check import AdminMiddleware
 from bot.middlewares.db import DbSessionMiddleware
 from bot.models.base import Base, engine
+from bot.models.user import User  # noqa: F401
+from bot.models.payment import Payment  # noqa: F401
 
 
 async def on_startup(bot: Bot) -> None:
     logger.info("Starting TM.Academy Bot")
     if settings.WEBHOOK_HOST:
         await bot.delete_webhook()
+    
+    # Create tables if they don't exist
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
 async def on_shutdown() -> None:

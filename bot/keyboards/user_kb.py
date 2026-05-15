@@ -7,7 +7,13 @@ def main_menu_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="💳 Купить курс",        callback_data="buy_course")],
         [InlineKeyboardButton(text="📚 Что внутри курса",   callback_data="course")],
-        [InlineKeyboardButton(text="📢 Telegram канал",     url=settings.CHANNEL_LINK)],
+        [InlineKeyboardButton(text="🛠 Поддержка",          callback_data="support")],
+    ])
+
+
+def active_main_menu_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="📚 Что внутри курса",   callback_data="course")],
         [InlineKeyboardButton(text="🛠 Поддержка",          callback_data="support")],
     ])
 
@@ -33,6 +39,10 @@ def back_to_menu_keyboard() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="◀️ Назад в меню", callback_data="menu")],
     ])
 
+def join_channel_keyboard(invite_link: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🚪 Вступить", url=invite_link)],
+    ])
 
 def faq_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[

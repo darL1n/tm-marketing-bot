@@ -14,3 +14,5 @@ class User(Base):
     full_name: Mapped[str | None] = mapped_column(String(256))
     is_active: Mapped[bool] = mapped_column(Boolean, default=False)
     joined_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    invite_link: Mapped[str | None] = mapped_column(String(256), nullable=True)
+    invite_expire_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)

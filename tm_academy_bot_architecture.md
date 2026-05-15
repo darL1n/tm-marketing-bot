@@ -507,7 +507,6 @@ def main_menu() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="💳 Купить курс",       callback_data="buy_course")],
         [InlineKeyboardButton(text="📚 Что внутри курса",  callback_data="course_info")],
-        [InlineKeyboardButton(text="📢 Telegram канал",    url="https://t.me/your_public_channel")],
         [InlineKeyboardButton(text="🙋 Поддержка",         url="https://t.me/support_username")],
     ])
 

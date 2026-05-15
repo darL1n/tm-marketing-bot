@@ -14,6 +14,8 @@ from alembic import context
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from bot.models.base import Base
+from bot.models.user import User  # noqa: F401
+from bot.models.payment import Payment  # noqa: F401
 from bot.config.settings import settings
 
 

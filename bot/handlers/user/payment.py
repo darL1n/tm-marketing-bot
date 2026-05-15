@@ -2,23 +2,25 @@ from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
+from loguru import logger
 from sqlalchemy import select
 
 from bot.config.settings import settings
 from bot.keyboards.admin_kb import review_keyboard
 from bot.keyboards.user_kb import (
+    active_main_menu_keyboard,
     back_to_menu_keyboard,
     buy_keyboard,
     countries_keyboard,
 )
 from bot.models.payment import Payment
 from bot.models.user import User
-from bot.services.subscription import is_subscribed
+from bot.services.subscription import check_channel_membership
 from bot.utils.helpers import get_receipt_file_id
 from bot.utils.messages import (
+    ALREADY_ACTIVE,
     BUY_INFO,
     CHOOSE_COUNTRY,
-    NOT_SUBSCRIBED,
     RECEIPT_RECEIVED,
     REQUISITES,
     ADMIN_NEW_PAYMENT,
@@ -35,18 +37,30 @@ class PaymentFSM(StatesGroup):
 # ── Экран "Купить курс" ────────────────────────────────────────────────────────
 
 @router.callback_query(F.data == "buy_course")
-async def buy_course_screen(callback: CallbackQuery, state: FSMContext):
+async def buy_course_screen(callback: CallbackQuery, state: FSMContext, session):
     """Показываем описание + цену. Подписка проверяется здесь."""
     await callback.answer()
     await state.clear()
 
-    subscribed = await is_subscribed(callback.bot, callback.from_user.id)
-    if not subscribed:
-        await callback.message.edit_text(
-            NOT_SUBSCRIBED.format(channel_link=settings.CHANNEL_LINK),
-            reply_markup=back_to_menu_keyboard(),
+    result = await session.execute(select(User).where(User.tg_id == callback.from_user.id))
+    user = result.scalar_one_or_none()
+    if user and user.is_active:
+        membership = await check_channel_membership(callback.bot, callback.from_user.id)
+        logger.debug(
+            "buy_course: user_id={} is_active=True membership={} ",
+            callback.from_user.id,
+            membership,
         )
-        return
+        if membership is False:
+            user.is_active = False
+            await session.commit()
+            user = None
+        else:
+            await callback.message.edit_text(
+                ALREADY_ACTIVE,
+                reply_markup=active_main_menu_keyboard(),
+            )
+            return
 
     await callback.message.edit_text(
         BUY_INFO.format(price=settings.COURSE_PRICE),
@@ -136,7 +150,7 @@ async def upload_receipt(message: Message, state: FSMContext, session):
 
     if message.photo:
         await message.bot.send_photo(
-            chat_id=settings.ADMIN_CHAT_ID,
+            chat_id=settings.ADMIN_GROUP_ID,
             photo=file_id,
             caption=caption,
             reply_markup=review_keyboard(payment.id),
@@ -144,7 +158,7 @@ async def upload_receipt(message: Message, state: FSMContext, session):
     else:
         # Документ (pdf / другой файл)
         await message.bot.send_document(
-            chat_id=settings.ADMIN_CHAT_ID,
+            chat_id=settings.ADMIN_GROUP_ID,
             document=file_id,
             caption=caption,
             reply_markup=review_keyboard(payment.id),
