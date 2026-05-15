@@ -2,8 +2,9 @@ import asyncio
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.bot import DefaultBotProperties
-from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.storage.redis import RedisStorage
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
+from aiohttp import web
 from loguru import logger
 
 from bot.config.settings import settings
@@ -18,16 +19,19 @@ from bot.models.payment import Payment  # noqa: F401
 
 async def on_startup(bot: Bot) -> None:
     logger.info("Starting TM.Academy Bot")
-    if settings.WEBHOOK_HOST:
-        await bot.delete_webhook()
-    
-    # Create tables if they don't exist
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
+    if settings.WEBHOOK_HOST:
+        webhook_url = f"{settings.WEBHOOK_HOST}{settings.WEBHOOK_PATH}"
+        await bot.set_webhook(webhook_url)
+        logger.info("Webhook set: {}", webhook_url)
 
-async def on_shutdown() -> None:
+
+async def on_shutdown(bot: Bot) -> None:
     logger.info("Shutting down")
+    if settings.WEBHOOK_HOST:
+        await bot.delete_webhook()
     await engine.dispose()
 
 
@@ -44,28 +48,29 @@ async def main() -> None:
 
     admin_router.message.middleware(AdminMiddleware())
     admin_router.callback_query.middleware(AdminMiddleware())
-
     dp.message.middleware(DbSessionMiddleware())
     dp.callback_query.middleware(DbSessionMiddleware())
 
+    dp.startup.register(on_startup)
+    dp.shutdown.register(on_shutdown)
+
     if settings.WEBHOOK_HOST:
-        webhook_url = f"{settings.WEBHOOK_HOST}{settings.WEBHOOK_PATH}"
-        logger.info("Starting webhook mode: {}", webhook_url)
-        await dp.start_webhook(
-            bot=bot,
-            webhook_path=settings.WEBHOOK_PATH,
-            webhook_url=webhook_url,
-            skip_updates=True,
-            host="0.0.0.0",
-            port=8000,
-            on_startup=[on_startup],
-            on_shutdown=[on_shutdown],
+        app = web.Application()
+        SimpleRequestHandler(dispatcher=dp, bot=bot).register(
+            app, path=settings.WEBHOOK_PATH
         )
+        setup_application(app, dp, bot=bot)
+
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(runner, host="0.0.0.0", port=8000)
+        await site.start()
+        logger.info("Webhook server started on port 8000")
+
+        await asyncio.Event().wait()  # держим процесс живым
     else:
         logger.info("Starting polling mode")
-        await on_startup(bot)
         await dp.start_polling(bot, skip_updates=True)
-        await on_shutdown()
 
 
 if __name__ == "__main__":
