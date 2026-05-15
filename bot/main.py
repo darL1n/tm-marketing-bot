@@ -22,16 +22,9 @@ async def on_startup(bot: Bot) -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    if settings.WEBHOOK_HOST:
-        webhook_url = f"{settings.WEBHOOK_HOST}{settings.WEBHOOK_PATH}"
-        await bot.set_webhook(webhook_url)
-        logger.info("Webhook set: {}", webhook_url)
-
 
 async def on_shutdown(bot: Bot) -> None:
     logger.info("Shutting down")
-    if settings.WEBHOOK_HOST:
-        await bot.delete_webhook()
     await engine.dispose()
 
 
