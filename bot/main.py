@@ -14,7 +14,6 @@ from bot.middlewares.admin_check import AdminMiddleware
 from bot.middlewares.db import DbSessionMiddleware
 from bot.models.base import Base, engine
 from bot.models.user import User  # noqa: F401
-from bot.models.payment import Payment  # noqa: F401
 
 
 async def on_startup(bot: Bot) -> None:
