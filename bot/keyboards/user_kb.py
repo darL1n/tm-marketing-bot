@@ -28,8 +28,9 @@ def buy_keyboard() -> InlineKeyboardMarkup:
 def countries_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="🇰🇬 Кыргызстан", callback_data="country:kg")],
+        [InlineKeyboardButton(text="🇺🇿 Узбекистан", callback_data="country:uz")],
         [InlineKeyboardButton(text="🇰🇿 Казахстан",  callback_data="country:kz")],
-        [InlineKeyboardButton(text="🇷🇺 Россия",      callback_data="country:ru")],
+        [InlineKeyboardButton(text="💳 Visa",        callback_data="country:visa")],
         [InlineKeyboardButton(text="◀️ Назад",        callback_data="buy_course")],
     ])
 

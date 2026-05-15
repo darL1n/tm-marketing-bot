@@ -23,8 +23,9 @@ class Settings(BaseSettings):
 
     CARDS: dict[str, dict[str, str]] = {
         "kg": {"label": "🇰🇬 Кыргызстан", "number": "1234 5678 9012 3456", "bank": "Mbank / O!Деньги"},
+        "uz": {"label": "🇺🇿 Узбекистан", "number": "9860 1001 2565 0000", "bank": "Xumo / Фаррух Норматов"},
         "kz": {"label": "🇰🇿 Казахстан",  "number": "9876 5432 1098 7654", "bank": "Kaspi"},
-        "ru": {"label": "🇷🇺 Россия",      "number": "4444 3333 2222 1111", "bank": "SberPay / СБП"},
+        "visa": {"label": "💳 Visa",      "number": "4278 3200 2873 8291", "bank": "Visa / Фаррух Норматов"},
     }
 
     COURSE_PRICE: str = "99 $"
