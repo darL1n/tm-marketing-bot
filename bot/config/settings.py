@@ -22,13 +22,14 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379/0"
 
     CARDS: dict[str, dict[str, str]] = {
-        "kg": {"label": "🇰🇬 Кыргызстан", "number": "1234 5678 9012 3456", "bank": "Mbank / O!Деньги"},
+        "kg": {"label": "🇰🇬 Кыргызстан", "number": "4714 7000 6545 5838", "bank": "Mbank / Fakhritdinov Otabek "},
         "uz": {"label": "🇺🇿 Узбекистан", "number": "9860 1001 2565 0000", "bank": "Xumo / Фаррух Норматов"},
-        "kz": {"label": "🇰🇿 Казахстан",  "number": "9876 5432 1098 7654", "bank": "Kaspi"},
+        # "kz": {"label": "🇰🇿 Казахстан",  "number": "9876 5432 1098 7654", "bank": "Kaspi"},
         "visa": {"label": "💳 Visa",      "number": "4278 3200 2873 8291", "bank": "Visa / Фаррух Норматов"},
+        "mastercard": {"label": "💳 Mastercard", "number": "5302 0009 7851 6189", "bank": "Mastercard / Fakhritdinov Otabek "}   ,
     }
 
-    COURSE_PRICE: str = "99 $"
+    COURSE_PRICE: str = "17 $ (1499 сом)"
 
     WEBHOOK_HOST: str = ""
     WEBHOOK_PATH: str = "/webhook"
